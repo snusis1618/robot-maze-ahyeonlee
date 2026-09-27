@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="10x10 로봇 미로 탈출 시뮬레이터 - 함수, 조건문, 반복문 과제" />
+  <title>ESCAPE_100</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <!-- INTRO SCREEN -->
+    <section id="intro-screen" class="screen screen--active intro-screen" aria-labelledby="intro-title">
+      <div class="scanlines" aria-hidden="true"></div>
+      <div class="intro-card pixel-border">
+        <p class="eyebrow">ROBOT MAZE SIMULATION // 10 × 10</p>
+        <h1 id="intro-title" class="game-title">ESCAPE_100</h1>
+        <div class="dialog-box">
+          <p>100개의 방 중 하나에서 깨어난 로봇.</p>
+          <p>로봇은 단순한 규칙만으로 출구를 찾아야 합니다.</p>
+          <p>시작 위치와 방향에 따라 결과는 달라집니다.</p>
+        </div>
+        <button id="start-game-btn" class="retro-button retro-button--primary" type="button">[ START ]</button>
+        <p class="tiny-note">FUNCTION · IF / ELSE · FOR · WHILE</p>
+      </div>
+    </section>
+
+    <!-- GAME SCREEN -->
+    <section id="game-screen" class="screen" aria-labelledby="game-heading">
+      <header class="topbar pixel-border">
+        <div>
+          <p class="eyebrow">SYSTEM // MAZE-01</p>
+          <h2 id="game-heading">ESCAPE_100</h2>
+        </div>
+        <div class="topbar-status">
+          <span id="status-dot" class="status-dot"></span>
+          <span id="status-text">READY</span>
+        </div>
+      </header>
+
+      <div class="game-layout">
+        <section class="maze-panel pixel-border" aria-label="10x10 maze">
+          <div class="panel-heading">
+            <div>
+              <span class="panel-label">01 // SELECT START</span>
+              <p>칸을 클릭하거나 번호를 입력하세요.</p>
+            </div>
+            <div class="legend" aria-label="maze legend">
+              <span><i class="legend-box legend-box--wall"></i> WALL</span>
+              <span><i class="legend-box legend-box--exit"></i> EXIT</span>
+              <span><i class="legend-box legend-box--path"></i> PATH</span>
+            </div>
+          </div>
+
+          <div id="maze-grid" class="maze-grid" role="grid" aria-label="10 by 10 maze grid"></div>
+
+          <div class="number-input-row">
+            <label for="cell-number-input">ROOM</label>
+            <input id="cell-number-input" type="number" min="1" max="100" inputmode="numeric" placeholder="37" />
+            <button id="select-number-btn" class="retro-button retro-button--small" type="button">SELECT</button>
+            <span id="selection-message" class="inline-message">NO ROOM SELECTED</span>
+          </div>
+        </section>
+
+        <aside class="control-panel pixel-border">
+          <section class="control-section">
+            <span class="panel-label">02 // DIRECTION</span>
+            <p class="control-copy">버튼 또는 키보드 방향키로 시작 방향을 고르세요.</p>
+            <div class="dpad" aria-label="starting direction selector">
+              <button class="direction-key direction-key--up" data-direction="N" aria-label="북쪽">↑</button>
+              <button class="direction-key direction-key--left" data-direction="W" aria-label="서쪽">←</button>
+              <button class="direction-key direction-key--down" data-direction="S" aria-label="남쪽">↓</button>
+              <button class="direction-key direction-key--right" data-direction="E" aria-label="동쪽">→</button>
+            </div>
+            <p id="direction-readout" class="readout">DIRECTION: --</p>
+          </section>
+
+          <section class="control-section control-section--run">
+            <span class="panel-label">03 // RUN</span>
+            <button id="run-btn" class="retro-button retro-button--run" type="button" disabled>[ RUN SIMULATION ]</button>
+            <button id="reset-btn" class="retro-button retro-button--ghost" type="button">RESET</button>
+          </section>
+
+          <section class="control-section speed-section">
+            <span class="panel-label">SPEED</span>
+            <div class="speed-buttons" role="group" aria-label="simulation speed">
+              <button class="speed-btn speed-btn--active" data-speed="1" type="button">×1</button>
+              <button class="speed-btn" data-speed="2" type="button">×2</button>
+              <button class="speed-btn" data-speed="4" type="button">×4</button>
+            </div>
+          </section>
+
+          <section class="control-section live-section">
+            <div class="stat-row"><span>STEP</span><strong id="step-readout">000 / 100</strong></div>
+            <div class="stat-row"><span>ROOM</span><strong id="room-readout">--</strong></div>
+            <div class="stat-row"><span>FACING</span><strong id="facing-readout">--</strong></div>
+            <div class="event-log" id="event-log" aria-live="polite">WAITING FOR INPUT...</div>
+          </section>
+
+          <section class="control-section audit-section">
+            <span class="panel-label">MAZE AUDIT // FOR LOOP</span>
+            <p id="audit-readout" class="audit-readout">ANALYZING 400 STATES...</p>
+          </section>
+        </aside>
+      </div>
+
+      <footer class="rules pixel-border">
+        <span class="panel-label">ROBOT RULES</span>
+        <ol>
+          <li>앞이 비어 있으면 한 칸 전진.</li>
+          <li>앞이 벽이면 오른쪽으로 90° 회전.</li>
+          <li>출구 도달 즉시 성공.</li>
+          <li>최대 100 actions. 동일한 위치+방향이 반복되면 loop 감지.</li>
+        </ol>
+      </footer>
+    </section>
+  </main>
+
+  <!-- RESULT OVERLAY -->
+  <div id="result-overlay" class="result-overlay" aria-hidden="true">
+    <div id="success-card" class="result-card result-card--success pixel-border" hidden>
+      <div class="coin" aria-hidden="true"><span>100</span></div>
+      <p class="result-kicker">ITEM GET!</p>
+      <h3>100 WON ACQUIRED</h3>
+      <p id="success-steps" class="result-mainline">ESCAPED IN 000 STEPS</p>
+      <button class="retro-button result-close-btn" type="button">TRY AGAIN</button>
+    </div>
+
+    <div id="failure-card" class="result-card result-card--failure pixel-border" hidden>
+      <div class="failure-mark" aria-hidden="true">×</div>
+      <p class="result-kicker">SIMULATION END</p>
+      <h3>NO EXIT FOUND.</h3>
+      <p id="failure-reason" class="result-mainline">100 STEPS EXHAUSTED.</p>
+      <button class="retro-button result-close-btn" type="button">TRY AGAIN</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
